@@ -1,0 +1,38 @@
+product:
+  name: monthly-chromap-nl
+  version: 0.1.0-dev
+  start: 2013-01-01
+  end: 2025-12-31
+  validated_through: 2024-12-31
+  provisional_years:
+    - 2025
+
+domain:
+  territory: european_netherlands
+  output_crs: EPSG:3035
+  resolution_metres: 500
+  training_buffer_km: 150
+  include_sea: false
+  dutch_caribbean: false
+
+indicators:
+  monthly_means:
+    - no2
+    - pm2p5
+    - pm10
+    - o3
+  monthly_sums:
+    - somo35
+
+aggregation:
+  timezone: UTC
+  minimum_valid_hours_per_day: 18
+  minimum_valid_days_fraction_per_month: 0.75
+  minimum_valid_hours_per_8h_window: 6
+  somo35_threshold_ugm3: 70.0
+
+outputs:
+  primary_format: netcdf
+  one_file_per_pollutant_year: true
+  optional_cog: true
+

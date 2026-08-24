@@ -1,0 +1,43 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Credentials and machine-local configuration
+.cdsapirc
+*.pem
+*.key
+
+# Downloaded data, intermediate products, and generated outputs
+data/*
+!data/README.md
+outputs/*
+!outputs/README.md
+staging/
+
+# Large geospatial and archive formats
+*.nc
+*.nc4
+*.tif
+*.tiff
+*.gpkg
+*.pbf
+*.parquet
+*.joblib
+*.zip
+*.7z
+*.tar
+*.gz
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
