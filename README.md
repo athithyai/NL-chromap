@@ -5,6 +5,12 @@ European Netherlands. It covers January 2013 through December 2025 and produces
 NO2, PM2.5, PM10, O3 monthly means plus monthly SOMO35 contributions. The 2021
 end-to-end pilot is complete; full-period production is the next release phase.
 
+This project is an **independent monthly adaptation and Netherlands-focused
+extension of the CHROMAP v1.0 methodology** developed by Guion et al. It is not
+an official CHROMAP release and is not presented as an exact reproduction of the
+authors' annual European products. The original work is credited in
+[Acknowledgements](ACKNOWLEDGEMENTS.md).
+
 The project uses a fixed EPSG:3035 land grid with 140,260 cells, cross-border
 station training within a 150 km buffer, CAMS reanalysis as the baseline, and
 buffered spatial cross-validation for residual downscaling.
@@ -121,3 +127,12 @@ predictor arrays and trained weights. Known issues and redevelopment decisions a
 
 The production plan and release gates are in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 No open-source licence is granted while this repository remains private.
+
+## Acknowledgements
+
+This work adapts the feature-fusion design, direct ensemble architecture, and
+pollutant-specific modelling choices described in **CHROMAP v1.0** by Antoine
+Guion and colleagues at Ineris and INSA Rouen. Please cite the original CHROMAP
+preprint when using or discussing this adaptation. See
+[ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) for the complete attribution and
+citation.

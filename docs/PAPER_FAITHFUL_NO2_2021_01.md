@@ -1,5 +1,9 @@
 # Paper-faithful CHROMAP NO₂ experiment — January 2021
 
+This experiment is an independent monthly adaptation of CHROMAP v1.0 by Guion
+et al., not an official CHROMAP product. Full attribution and the recommended
+citation are provided in [the repository acknowledgements](../ACKNOWLEDGEMENTS.md).
+
 ## What “reproduction” means here
 
 The publication describes annual European maps averaged over 2019–2023. This
