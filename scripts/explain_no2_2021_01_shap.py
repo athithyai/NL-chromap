@@ -1,8 +1,12 @@
-"""Explain the two fitted January 2021 NO2 approaches with permutation SHAP.
+"""Explain two January 2021 model families on the current NL predictor stack.
 
 This implementation estimates interventional Shapley values directly so it does
 not depend on the optional compiled SHAP/numba stack. Random permutations are
 paired with their reverse order to reduce Monte Carlo ordering variance.
+
+This is not an original-CHROMAP predictor reproduction: the current stack omits
+TROPOMI total-column NO2 (CHEM_Sat_no2) and GHS-SMOD urbanisation class
+(GEO_UrbDeg). Its CAMS monthly mean is the CHEM_CTM_no2 analogue.
 """
 
 from __future__ import annotations
@@ -333,6 +337,9 @@ def main() -> None:
     metadata = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "scope": "January 2021 NO2; final models fitted to all complete station rows",
+        "predictor_scope": "Current NL predictor stack; not the complete original CHROMAP NO2 stack",
+        "original_chromap_features_missing": ["CHEM_Sat_no2", "GEO_UrbDeg"],
+        "original_chromap_feature_analogue": {"CHEM_CTM_no2": "cams_value"},
         "station_rows": len(data),
         "source_counts": source_counts,
         "features": FEATURES,
