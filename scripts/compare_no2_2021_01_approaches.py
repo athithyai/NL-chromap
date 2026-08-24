@@ -49,16 +49,20 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def grid_feature_table(mask: np.ndarray) -> pd.DataFrame:
+def grid_feature_table(mask: np.ndarray, indicator: str = "no2") -> pd.DataFrame:
     """Build January grid predictors in the same order used at stations."""
     with (
         xr.open_dataset("data/processed/predictors/static_predictors_nl_500m_2021.nc") as static,
         xr.open_dataset("data/processed/predictors/osm_road_density_nl_500m.nc") as roads,
         xr.open_dataset("data/processed/predictors/era5_monthly_predictors_nl_500m_2021.nc") as met,
-        xr.open_dataset("data/processed/baseline/cams_baseline_nl_500m_2021_01.nc") as cams,
+        xr.open_dataset(
+            "data/processed/baseline/cams_baseline_nl_500m_2021_01_so2.nc"
+            if indicator == "so2"
+            else "data/processed/baseline/cams_baseline_nl_500m_2021_01.nc"
+        ) as cams,
     ):
         values = {
-            "cams_value": cams.no2.squeeze().values[mask],
+            "cams_value": cams[indicator].squeeze().values[mask],
             "log1p_population_density": static.log1p_population_density.values[mask],
             "elevation": static.elevation.values[mask],
             "landcover_tree_fraction": static.landcover_tree_fraction.values[mask],
@@ -88,28 +92,72 @@ def grid_feature_table(mask: np.ndarray) -> pd.DataFrame:
     return pd.DataFrame(values)[FEATURES]
 
 
-def chromap_models() -> dict[str, object]:
-    """Use the supplied CHROMAP v1.0 fixed NO2 hyperparameters."""
+def chromap_models(indicator: str = "no2") -> dict[str, object]:
+    """Use the supplied CHROMAP v1.0 fixed pollutant hyperparameters."""
+    if indicator == "o3":
+        ridge = {"alpha": 3.5}
+        forest = dict(n_estimators=500, min_samples_split=5, min_samples_leaf=2,
+                      max_features="sqrt", max_depth=10, bootstrap=True)
+        boosted = dict(subsample=0.7, sampling_method="uniform", n_estimators=1000,
+                       min_child_weight=5, max_depth=2, max_delta_step=3,
+                       learning_rate=0.3, reg_lambda=100, gamma=0.4,
+                       colsample_bytree=0.5, reg_alpha=100)
+        mlp = dict(solver="lbfgs", momentum=0.7, learning_rate_init=0.01,
+                   learning_rate="constant", hidden_layer_sizes=(100, 100, 100),
+                   alpha=0.5, activation="identity")
+    elif indicator == "somo35":
+        ridge = {"alpha": 10.9}
+        forest = dict(n_estimators=1500, min_samples_split=5, min_samples_leaf=2,
+                      max_features=1.0, max_depth=50, bootstrap=True)
+        boosted = dict(subsample=1.0, sampling_method="uniform", n_estimators=1500,
+                       min_child_weight=1, max_depth=6, max_delta_step=0,
+                       learning_rate=0.3, reg_lambda=1, gamma=0,
+                       colsample_bytree=1.0, reg_alpha=0)
+        mlp = dict(solver="lbfgs", momentum=0.5, learning_rate_init=0.2,
+                   learning_rate="constant", hidden_layer_sizes=(50,),
+                   alpha=0.1, activation="identity")
+    elif indicator in {"pm10", "pm2p5"}:
+        ridge = {"alpha": 2.0}
+        forest = dict(n_estimators=1000, min_samples_split=5, min_samples_leaf=2,
+                      max_features="sqrt", max_depth=30, bootstrap=True)
+        boosted = dict(subsample=0.5, sampling_method="uniform", n_estimators=1500,
+                       min_child_weight=7, max_depth=5, max_delta_step=7,
+                       learning_rate=0.01, reg_lambda=10, gamma=0.4,
+                       colsample_bytree=1.0, reg_alpha=1)
+        mlp = dict(solver="adam", momentum=0.9, learning_rate_init=0.001,
+                   learning_rate="invscaling", hidden_layer_sizes=(150,),
+                   alpha=0.5, activation="tanh")
+    elif indicator == "no2":
+        ridge = {"alpha": 2.9}
+        forest = dict(n_estimators=500, min_samples_split=10, min_samples_leaf=2,
+                      max_features="sqrt", max_depth=10, bootstrap=True)
+        boosted = dict(subsample=1.0, sampling_method="uniform", n_estimators=1000,
+                       min_child_weight=1, max_depth=5, max_delta_step=5,
+                       learning_rate=0.01, reg_lambda=10, gamma=1,
+                       colsample_bytree=0.5, reg_alpha=100)
+        mlp = dict(solver="adam", momentum=0.9, learning_rate_init=0.001,
+                   learning_rate="constant", hidden_layer_sizes=(150, 150, 150),
+                   alpha=0.0001, activation="logistic")
+    elif indicator == "so2":
+        # The supplied archive has no fixed SO2 preset. This conservative direct-
+        # ensemble extension stays inside its model families and parameter ranges.
+        ridge = {"alpha": 3.0}
+        forest = dict(n_estimators=500, min_samples_split=5, min_samples_leaf=2,
+                      max_features="sqrt", max_depth=10, bootstrap=True)
+        boosted = dict(subsample=0.8, sampling_method="uniform", n_estimators=500,
+                       min_child_weight=3, max_depth=2, max_delta_step=3,
+                       learning_rate=0.03, reg_lambda=10, gamma=0.1,
+                       colsample_bytree=0.7, reg_alpha=1)
+        mlp = dict(solver="lbfgs", momentum=0.9, learning_rate_init=0.001,
+                   learning_rate="constant", hidden_layer_sizes=(50,),
+                   alpha=0.1, activation="relu")
+    else:
+        raise ValueError(f"unsupported CHROMAP pollutant: {indicator}")
     return {
-        "ridge": Ridge(alpha=2.9),
-        "random_forest": RandomForestRegressor(
-            n_estimators=500, min_samples_split=10, min_samples_leaf=2,
-            max_features="sqrt", max_depth=10, bootstrap=True,
-            random_state=42, n_jobs=-1,
-        ),
-        "xgboost": XGBRegressor(
-            subsample=1.0, sampling_method="uniform", n_estimators=1000,
-            min_child_weight=1, max_depth=5, max_delta_step=5,
-            learning_rate=0.01, reg_lambda=10, gamma=1,
-            colsample_bytree=0.5, reg_alpha=100,
-            random_state=42, n_jobs=-1, tree_method="hist",
-        ),
-        "mlp": MLPRegressor(
-            solver="adam", momentum=0.9, learning_rate_init=0.001,
-            learning_rate="constant", hidden_layer_sizes=(150, 150, 150),
-            alpha=0.0001, activation="logistic", random_state=42,
-            max_iter=200,
-        ),
+        "ridge": Ridge(**ridge),
+        "random_forest": RandomForestRegressor(**forest, random_state=42, n_jobs=-1),
+        "xgboost": XGBRegressor(**boosted, random_state=42, n_jobs=-1, tree_method="hist"),
+        "mlp": MLPRegressor(**mlp, random_state=42, max_iter=200),
     }
 
 

@@ -1,0 +1,5 @@
+pollutant,stations,cams_rmse,chromap_style_rmse,nl_residual_rmse,nl_selected_model,nl_selected_rmse,head_to_head_nominal_winner
+o3,159,3.189324,2.892087,3.135420,nl_residual,3.135420,chromap_style
+pm10,207,2.685520,2.618754,2.624446,nl_residual,2.624446,chromap_style
+pm2p5,152,1.649029,1.807286,1.625247,nl_residual,1.625247,nl_selected
+so2,48,1.628862,1.580673,1.633269,cams_baseline,1.628862,chromap_style

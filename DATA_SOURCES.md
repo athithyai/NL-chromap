@@ -12,7 +12,7 @@ This register defines the preferred sources for the monthly CHROMAP-NL product. 
 - Catalogue: <https://ads.atmosphere.copernicus.eu/datasets/cams-europe-air-quality-reanalyses>.
 - API catalogue record: <https://ads.atmosphere.copernicus.eu/api/catalogue/v1/collections/cams-europe-air-quality-reanalyses>.
 - Product: ensemble median, surface level, validated reanalysis when available and interim reanalysis only for explicitly provisional years.
-- Variables: nitrogen dioxide, ozone, particulate matter below 2.5 micrometres, and particulate matter below 10 micrometres.
+- Variables: nitrogen dioxide, ozone, particulate matter below 2.5 micrometres, particulate matter below 10 micrometres, and sulphur dioxide.
 - Resolution: 0.1 degree, hourly, supplied as monthly files.
 - Coverage: 2013 onward; the catalogue currently exposes 2013-2025.
 - Licence: CC BY 4.0.
@@ -28,7 +28,7 @@ The collection currently supplies complete European files rather than a Netherla
 - Archive: <https://data.rivm.nl/data/luchtmeetnet/>.
 - Documentation: <https://data.rivm.nl/data/luchtmeetnet/readme.pdf>.
 - Product: ratified hourly observations under `Vastgesteld-jaar`, with provisional data used only when explicitly labelled.
-- Pollutants: NO2, O3, PM10, and PM2.5.
+- Pollutants: NO2, O3, PM10, PM2.5, and SO2.
 - Metadata: station coordinates, measurement-series classifications, area type, station type, measurement height, methods, and network.
 - Time convention: source timestamps include fixed UTC+1 offsets; ingestion converts them to UTC while preserving source timestamps and metadata.
 - Important quality rule: the archive omits rejected/missing values rather than inserting placeholder rows. Completeness must be reconstructed from expected hourly timestamps.
@@ -42,7 +42,9 @@ The collection currently supplies complete European files rather than a Netherla
 - Coverage: 2013 onward.
 - Use: cross-border training observations and an independent consistency check on Netherlands station data.
 - Acquired pilot stack: 3,943 verified E1a station-series files for Belgium, Germany, France, and Luxembourg (4,525,719,535 bytes). The API URL-list method returns full series; the downstream preparation step selects 2021 and clips stations to the training buffer.
+- Acquired SO2 stack: 477 verified station-series files for Belgium, Germany, France, and Luxembourg (382,397,517 bytes), stored separately under `data/raw/eea_air_quality_so2`. January 2021 preparation clips these records to the same buffered training domain.
 - Reproducibility: `data/raw/eea_air_quality/manifest.json` records every source URL, byte count, and SHA-256 digest.
+- SO2 reproducibility: `data/raw/eea_air_quality_so2/manifest.json` records every source URL, byte count, and SHA-256 digest.
 - Station geometry: the official EEA ArcGIS monitoring-station service is archived as `data/raw/eea_air_quality/station_locations.geojson`; its EoI station codes are joined to the codes embedded in Parquet filenames. This avoids obsolete identifier mismatches in the older sampling-point metadata extract.
 
 RIVM is the preferred Netherlands record because it supplies the authoritative ratified hourly source directly. EEA is required for the Belgium/Germany buffer and for harmonised European station classifications.

@@ -19,6 +19,7 @@ RIVM_COMPONENT_TO_INDICATOR = {
     "PM2.5": "pm2p5",
     "PM10": "pm10",
     "O3": "o3",
+    "SO2": "so2",
 }
 
 

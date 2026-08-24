@@ -4,10 +4,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from chromap_nl.rivm import read_measurements
+from chromap_nl.rivm import RIVM_COMPONENT_TO_INDICATOR, read_measurements
 
 
 class RivmReaderTests(unittest.TestCase):
+    def test_maps_sulphur_dioxide_to_so2_indicator(self) -> None:
+        self.assertEqual(RIVM_COMPONENT_TO_INDICATOR["SO2"], "so2")
+
     def test_reads_hourly_air_values_and_preserves_negatives(self) -> None:
         content = """#export;test
 meetreeks_id;meetlocatie_id;component;matrix;meetduur;eenheid;begindatumtijd;waarde
