@@ -36,6 +36,10 @@ from compare_no2_2021_01_approaches import FEATURES, chromap_models
 
 OUTPUT_DIR = Path("outputs/feature_importance_2021_01_no2")
 INPUT_PATH = Path("data/processed/model/station_predictors_2021.csv.gz")
+BASELINE_FEATURE = "cams_value"
+PREDICTOR_SCOPE = "Current NL predictor stack; not the complete original CHROMAP NO2 stack"
+ORIGINAL_CHROMAP_FEATURES_MISSING = ["CHEM_Sat_no2", "GEO_UrbDeg"]
+ORIGINAL_CHROMAP_FEATURE_ANALOGUE = {"CHEM_CTM_no2": "cams_value"}
 BACKGROUND_SIZE = 24
 PERMUTATIONS = 16
 SEED = 42
@@ -139,11 +143,11 @@ def fit_prediction_functions(
         n_jobs=-1,
         random_state=SEED,
     )
-    residual.fit(x, y - data.cams_value.to_numpy())
+    residual.fit(x, y - data[BASELINE_FEATURE].to_numpy())
 
     def predict_nl(values: np.ndarray) -> np.ndarray:
         frame = pd.DataFrame(values, columns=FEATURES)
-        prediction = frame.cams_value.to_numpy() + residual.predict(frame)
+        prediction = frame[BASELINE_FEATURE].to_numpy() + residual.predict(frame)
         return np.clip(prediction, 0, None)
 
     diagnostics = {
@@ -337,9 +341,9 @@ def main() -> None:
     metadata = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "scope": "January 2021 NO2; final models fitted to all complete station rows",
-        "predictor_scope": "Current NL predictor stack; not the complete original CHROMAP NO2 stack",
-        "original_chromap_features_missing": ["CHEM_Sat_no2", "GEO_UrbDeg"],
-        "original_chromap_feature_analogue": {"CHEM_CTM_no2": "cams_value"},
+        "predictor_scope": PREDICTOR_SCOPE,
+        "original_chromap_features_missing": ORIGINAL_CHROMAP_FEATURES_MISSING,
+        "original_chromap_feature_analogue": ORIGINAL_CHROMAP_FEATURE_ANALOGUE,
         "station_rows": len(data),
         "source_counts": source_counts,
         "features": FEATURES,

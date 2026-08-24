@@ -31,6 +31,25 @@ Candidate correction is retained only when it improves spatial CV. Full detail i
 in [`PILOT_2021_RESULTS.md`](PILOT_2021_RESULTS.md) and the machine-readable metrics
 are in [`docs/results/spatial_cv_metrics_2021.csv`](docs/results/spatial_cv_metrics_2021.csv).
 
+## Paper-faithful January 2021 NO₂ comparison
+
+The paper's complete 22-feature NO₂ stack has now been rebuilt for January 2021,
+including actual TROPOMI `CHEM_Sat_no2` and GHS-SMOD `GEO_UrbDeg` layers. The
+fixed CHROMAP Ridge/Random Forest/XGBoost/MLP median ensemble and the NL residual
+approach were evaluated on identical five-fold geographic splits.
+
+| Method | RMSE | MAE | Bias | R² |
+|---|---:|---:|---:|---:|
+| Paper-feature CHROMAP | 4.530 | 3.618 | -0.544 | 0.616 |
+| NL residual, original features | 3.368 | 2.598 | -0.083 | 0.788 |
+| NL residual, same paper features | 3.344 | 2.542 | 0.021 | 0.791 |
+
+See the [method and source audit](docs/PAPER_FAITHFUL_NO2_2021_01.md),
+[comparison report](docs/results/NO2_2021_01_PAPER_REPRODUCTION.md), and
+[machine-readable metrics](docs/results/no2_2021_01_paper_reproduction_metrics.csv).
+The combined local NetCDF is written to
+`outputs/paper_chromap_no2_2021_01/no2_2021_01_paper_chromap_vs_nl.nc`.
+
 ## Architecture
 
 ```mermaid
@@ -84,8 +103,10 @@ source documentation, configuration, manifests produced by the pipeline, and
 checksums provide the reproducibility trail. Publish release artifacts separately
 with immutable checksums and provenance.
 
-The reference CHROMAP v1.0 archive was reviewed but is not run unmodified; known
-issues and redevelopment decisions are recorded in
+The reference CHROMAP v1.0 archive was reviewed. Its documented NO₂ feature and
+model stack is reproduced as a January 2021 monthly adaptation; the supplied
+archive cannot reproduce the published raster unmodified because it omits the
+predictor arrays and trained weights. Known issues and redevelopment decisions are recorded in
 [`REFERENCE_IMPLEMENTATION_REVIEW.md`](REFERENCE_IMPLEMENTATION_REVIEW.md).
 
 ## Scope and release status
