@@ -1,11 +1,9 @@
 product:
   name: monthly-chromap-nl
   version: 0.1.0-dev
+  status: research_pilot
   start: 2013-01-01
   end: 2025-12-31
-  validated_through: 2024-12-31
-  provisional_years:
-    - 2025
 
 domain:
   territory: european_netherlands
@@ -21,7 +19,8 @@ indicators:
     - pm2p5
     - pm10
     - o3
-  monthly_sums:
+    - so2
+  legacy_2021_pilot:
     - somo35
 
 aggregation:

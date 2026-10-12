@@ -1,138 +1,108 @@
 # NL CHROMAP
 
-NL CHROMAP is a reproducible pipeline for monthly 500 m air-quality maps over the
-European Netherlands. It covers January 2013 through December 2025 and produces
-NO2, PM2.5, PM10, O3 monthly means plus monthly SOMO35 contributions. The 2021
-end-to-end pilot is complete; full-period production is the next release phase.
+NL CHROMAP is an independent research adaptation of the [CHROMAP v1.0
+methodology](ACKNOWLEDGEMENTS.md) for 500 m monthly air-quality mapping in the
+European Netherlands. It contains acquisition and processing scripts, a
+Netherlands residual model, a monthly CHROMAP-style comparison, validation
+code, and compact results. It is not an official CHROMAP product.
 
-This project is an **independent monthly adaptation and Netherlands-focused
-extension of the CHROMAP v1.0 methodology** developed by Guion et al. It is not
-an official CHROMAP release and is not presented as an exact reproduction of the
-authors' annual European products. The original work is credited in
-[Acknowledgements](ACKNOWLEDGEMENTS.md).
+## What is implemented
 
-The project uses a fixed EPSG:3035 land grid with 140,260 cells, cross-border
-station training within a 150 km buffer, CAMS reanalysis as the baseline, and
-buffered spatial cross-validation for residual downscaling.
+| Workstream | Available result | Status |
+|---|---|---|
+| Netherlands pilot | Twelve 2021 monthly maps for NO₂, O₃, PM₁₀, PM₂.₅, and SOMO35 | Local pilot products; SOMO35 belongs to this earlier pilot |
+| Paper-feature CHROMAP adaptation | January 2021 NO₂ with the documented 22 predictors and four-model median ensemble | Reconstructed predictors and newly trained models; no author-supplied weights |
+| Five-pollutant comparison | January 2021 NO₂, O₃, PM₁₀, PM₂.₅, and SO₂ | Local maps and five-fold geographic validation; SO₂ uses a project-defined model preset because the supplied CHROMAP archive has none |
+| Historical production | Monthly maps from 2013 onward | Planned; do not treat the January or 2021 pilots as a complete historical product |
 
-> This is a private research repository. It contains code, configuration,
-> methodology, tests, and compact results—not provider downloads or generated
-> raster/NetCDF products.
+The comparison uses validated RIVM measurements and verified EEA stations in
+nearby countries. The maps cover Netherlands land cells only. The fixed
+EPSG:3035 grid has 500 m cells and uses the documented 2026 PDOK land boundary
+as a static mask, including for the 2021 experiment.
 
-## 2021 pilot result
+## Methods and evidence
 
-The pilot harmonized 12,795 station-month-indicator records from 334 RIVM and EEA
-stations and generated all twelve monthly five-indicator maps with uncertainty
-proxies.
+The CHROMAP adaptation predicts concentrations directly with Ridge, Random
+Forest, XGBoost, and MLP models, then takes their median. The Netherlands
+approach uses CAMS as a baseline and learns a station residual where geographic
+validation supports it. Both are evaluated using the same held-out geographic
+folds within each pollutant. Final maps are fitted using all eligible stations;
+station values sampled from those maps are not independent validation.
 
-| Indicator | CAMS RMSE | Extra Trees RMSE | Selected production candidate |
-|---|---:|---:|---|
-| NO2 | 7.27 | 4.73 | Extra Trees residual correction |
-| O3 | 4.13 | — | CAMS baseline |
-| PM10 | 3.37 | 3.11 | Extra Trees residual correction |
-| PM2.5 | 1.62 | — | CAMS baseline |
-| SOMO35 | 59.69 | — | CAMS baseline |
+| January 2021 pollutant | Stations | CHROMAP held-out RMSE | NL held-out RMSE |
+|---|---:|---:|---:|
+| NO₂ | 258 | 4.530 | 3.368 |
+| O₃ | 159 | 2.892 | 3.135 |
+| PM₁₀ | 207 | 2.619 | 2.624 |
+| PM₂.₅ | 152 | 1.807 | 1.625 |
+| SO₂ | 48 | 1.581 | 1.629 |
 
-Candidate correction is retained only when it improves spatial CV. Full detail is
-in [`PILOT_2021_RESULTS.md`](PILOT_2021_RESULTS.md) and the machine-readable metrics
-are in [`docs/results/spatial_cv_metrics_2021.csv`](docs/results/spatial_cv_metrics_2021.csv).
+RMSE is in µg/m³. The NL method for SO₂ selected unmodified CAMS. The NO₂
+CHROMAP result uses the paper-defined feature stack; the other four pollutants
+use the project's CHROMAP-style January comparison. See the
+[NO₂ method audit](docs/PAPER_FAITHFUL_NO2_2021_01.md),
+[NO₂ results](docs/results/NO2_2021_01_PAPER_REPRODUCTION.md), and
+[other-pollutant results](docs/results/OTHER_POLLUTANTS_2021_01.md) for
+definitions and limitations.
 
-## Paper-faithful January 2021 NO₂ comparison
+![January 2021 monitoring-station coverage](docs/results/ground_stations_all_training_2021_01.png)
 
-The paper's complete 22-feature NO₂ stack has now been rebuilt for January 2021,
-including actual TROPOMI `CHEM_Sat_no2` and GHS-SMOD `GEO_UrbDeg` layers. The
-fixed CHROMAP Ridge/Random Forest/XGBoost/MLP median ensemble and the NL residual
-approach were evaluated on identical five-fold geographic splits.
+The [Netherlands close-up](docs/results/ground_stations_netherlands_2021_01.png)
+shows the station distribution for each pollutant. The figures depict station
+locations, not concentration values.
 
-| Method | RMSE | MAE | Bias | R² |
-|---|---:|---:|---:|---:|
-| Paper-feature CHROMAP | 4.530 | 3.618 | -0.544 | 0.616 |
-| NL residual, original features | 3.368 | 2.598 | -0.083 | 0.788 |
-| NL residual, same paper features | 3.344 | 2.542 | 0.021 | 0.791 |
+## Start here
 
-See the [method and source audit](docs/PAPER_FAITHFUL_NO2_2021_01.md),
-[comparison report](docs/results/NO2_2021_01_PAPER_REPRODUCTION.md), and
-[machine-readable metrics](docs/results/no2_2021_01_paper_reproduction_metrics.csv).
-The combined local NetCDF is written to
-`outputs/paper_chromap_no2_2021_01/no2_2021_01_paper_chromap_vs_nl.nc`.
-
-## Architecture
-
-```mermaid
-flowchart LR
-  S[Observations + CAMS + ERA5 + static layers] --> A[Acquire and checksum]
-  A --> H[Harmonize to time and grid contracts]
-  H --> V[Buffered spatial CV]
-  V --> M[Pollutant-specific model selection]
-  M --> O[Monthly prediction + uncertainty]
-  O --> Q[QA and release manifests]
-  Q --> N[Annual NetCDF products]
-```
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for data-flow, component, and
-release-sequence diagrams.
-
-## Quick start
+Python 3.11 or newer is required. From the repository root:
 
 ```powershell
 python -m venv .venv
-.\\.venv\\Scripts\\Activate.ps1
-python -m pip install --upgrade pip
+.\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[pipeline]"
 $env:PYTHONPATH = "src"
 python -m unittest discover -s tests -v
 ```
 
-Acquisition requires provider licence acceptance and, for Copernicus products, a
-configured CDS API account. Follow [`docs/RUNBOOK.md`](docs/RUNBOOK.md) for the
-ordered workflow and [`DATA_SOURCES.md`](DATA_SOURCES.md) for provenance and
-licensing notes.
+On Linux or macOS, activate the environment with `source .venv/bin/activate`
+and run `PYTHONPATH=src python -m unittest discover -s tests -v`.
+
+The unit tests need no downloaded data. Reproducing a map does: accept each
+provider's terms, configure Copernicus CDS access, acquire the source layers,
+and build the intermediate files in the expected `data/` layout. Follow the
+[runbook](docs/RUNBOOK.md), [source register](DATA_SOURCES.md), and
+[external adaptation guide](docs/EXTERNAL_ADAPTATION.md). Several pilot scripts
+still use repository-relative paths and specific 2021 filenames; adapting a
+new year or region requires editing those paths and rerunning validation.
 
 ## Repository layout
 
 ```text
-config/                 versioned product and methodology settings
-src/chromap_nl/         reusable target and ingestion logic
-scripts/                acquisition, processing, modelling, QA, packaging
-tests/                  unit tests for core data contracts
-docs/                   architecture, runbook, roadmap, compact results
-data/                   local-only raw and processed workspace
-outputs/                local-only generated products
+config/          documented product settings; not yet consumed by every script
+src/chromap_nl/  reusable observation and aggregation logic
+scripts/         acquisition, predictors, modelling, validation, export, plots
+tests/           core unit tests
+docs/            methods, architecture, results, adaptation guide
+data/            local raw and processed data; excluded from Git
+outputs/         local model products; excluded from Git
+output/          local review and station exports; excluded from Git
 ```
 
-## Reproducibility and data policy
+The provided `CHROMAP_v1.0` archive was used as a reference for feature names,
+model families, pollutant presets, preprocessing, lower-bound handling, and
+median ensembling. It did not include the original processed predictor arrays
+or fitted weights, and is not redistributed here. The code in this repository
+rebuilds predictors from the cited public products and trains new models.
 
-Raw archives, provider files, aligned rasters, models, and generated NetCDF/PNG
-artifacts total more than 60 GB locally and are intentionally excluded from Git.
-They may also carry provider-specific redistribution terms. Acquisition scripts,
-source documentation, configuration, manifests produced by the pipeline, and
-checksums provide the reproducibility trail. Publish release artifacts separately
-with immutable checksums and provenance.
+## Data, licence, and attribution
 
-The reference CHROMAP v1.0 archive was reviewed. Its documented NO₂ feature and
-model stack is reproduced as a January 2021 monthly adaptation; the supplied
-archive cannot reproduce the published raster unmodified because it omits the
-predictor arrays and trained weights. Known issues and redevelopment decisions are recorded in
-[`REFERENCE_IMPLEMENTATION_REVIEW.md`](REFERENCE_IMPLEMENTATION_REVIEW.md).
+The repository contains code, documentation, and compact figures and metrics.
+Downloaded archives, station-level source data, credentials, model objects,
+and generated NetCDF products stay local. Data providers set their own licences
+and access conditions; the repository's software licence does not override
+them. See [data handling](data/README.md) and the [source register](DATA_SOURCES.md).
 
-## Scope and release status
-
-- Territory: European Netherlands; Dutch Caribbean and sea cells excluded.
-- Resolution/CRS: 500 m, EPSG:3035.
-- Period: 2013–2025; validated releases through 2024, with 2025 provisional.
-- Aggregation: UTC, explicit daily/monthly completeness rules in
-  [`config/product.yml`](config/product.yml).
-- SOMO35: monthly sum of daily maximum 8-hour O3 means above 70 µg/m³, with
-  cross-month windows handled explicitly.
-
-The production plan and release gates are in [`docs/ROADMAP.md`](docs/ROADMAP.md).
-No open-source licence is granted while this repository remains private.
-
-## Acknowledgements
-
-This work adapts the feature-fusion design, direct ensemble architecture, and
-pollutant-specific modelling choices described in **CHROMAP v1.0** by Antoine
-Guion and colleagues at Ineris and INSA Rouen. Please cite the original CHROMAP
-preprint when using or discussing this adaptation. See
-[ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) for the complete attribution and
-citation.
+Repository code and original documentation are licensed under
+[Apache-2.0](LICENSE). CHROMAP's original methodology and authors are credited
+in [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md); the upstream archive and source
+datasets retain their own terms. Changes to this adaptation are recorded in
+[CHANGELOG.md](CHANGELOG.md).

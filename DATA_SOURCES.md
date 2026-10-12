@@ -1,6 +1,10 @@
 # Authoritative data-source register
 
-This register defines the preferred sources for the monthly CHROMAP-NL product. Dataset versions, request payloads, retrieval times, file hashes, and licence identifiers must also be recorded in the machine-readable manifest produced during acquisition.
+This register documents sources used by the research pilots and preferred
+sources for the planned monthly product. The 2021 pilot and January 2021
+five-pollutant comparison are implemented; a complete 2013–2025 series is not.
+Dataset versions, request payloads, retrieval times, file hashes, and licence
+identifiers must also be recorded in acquisition manifests.
 
 ## Chemical baseline
 
@@ -16,7 +20,9 @@ This register defines the preferred sources for the monthly CHROMAP-NL product. 
 - Resolution: 0.1 degree, hourly, supplied as monthly files.
 - Coverage: 2013 onward; the catalogue currently exposes 2013-2025.
 - Licence: CC BY 4.0.
-- Processing: calculate monthly means from hourly fields and monthly SOMO35 contributions from hourly O3 before reprojecting to the 500 m target grid.
+- Processing: calculate monthly means from hourly fields before reprojecting to
+  the 500 m target grid. Monthly SOMO35 contributions were calculated for the
+  earlier 2021 pilot; SO2 replaces SOMO35 in the current five-pollutant target.
 
 The collection currently supplies complete European files rather than a Netherlands-only API subset. Acquisition is therefore staged one month at a time, cropped immediately to the buffered training domain, and recorded by checksum.
 
@@ -121,7 +127,11 @@ RIVM is the preferred Netherlands record because it supplies the authoritative r
 
 - Provider: Copernicus Sentinel-5P.
 - Use: optional NO2 total-column feature for 2019 onward after quality filtering.
-- Production status: excluded from the temporally consistent 2013-2025 core until a 2019+ sensitivity analysis shows spatial-validation improvement without a structural break.
+- January 2021 status: included as `CHEM_Sat_no2` in the paper-feature NO2
+  reconstruction after QA filtering.
+- Historical status: a 2013–2025 product cannot use TROPOMI consistently across
+  all years; a later-period sensitivity analysis is required before including
+  it in a pooled historical model.
 
 ## Source-selection principles
 

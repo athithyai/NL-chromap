@@ -12,6 +12,10 @@ This repository adapts that work to monthly production, adds a Netherlands
 residual-downscaling comparison, and rebuilds the required public predictor
 layers. It is not an official release by the CHROMAP authors, Ineris, or INSA
 Rouen, and it should not be interpreted as their endorsement of these results.
+The methodological reference was a supplied `CHROMAP_v1.0` archive and the
+accompanying publication. The archive is not redistributed here. The January
+models were retrained from newly assembled data because the original processed
+training arrays and fitted weights were not supplied.
 
 We gratefully acknowledge Antoine Guion, Alicia Gressent, Gaël Descombes,
 Yassine Janati, Elsa Real, Anthony Ung, Frédérik Meleux, Simone Schucht, and

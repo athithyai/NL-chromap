@@ -19,7 +19,10 @@ data/*
 !data/README.md
 outputs/*
 !outputs/README.md
+output/
+tmp/
 staging/
+scripts/*_local.py
 
 # Large geospatial and archive formats
 *.nc

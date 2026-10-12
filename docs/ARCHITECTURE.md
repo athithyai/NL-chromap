@@ -1,8 +1,9 @@
 # Architecture
 
-NL CHROMAP is a file-oriented, reproducible geospatial pipeline. The frozen grid,
-target rules, model selection protocol, and output schema remain constant across
-years so monthly products are comparable.
+NL CHROMAP is a file-oriented geospatial research pipeline. The January 2021
+comparison shares a fixed grid, station targets, and geographic validation
+folds. Historical production will require an explicit decision about monthly
+versus pooled training and consistent predictor availability across years.
 
 ## Data flow
 
@@ -11,19 +12,20 @@ flowchart LR
     subgraph Sources
       R[RIVM and EEA observations]
       C[CAMS reanalysis]
-      E[ERA5 meteorology]
-      S[Population, DEM, land cover, roads]
+      E[ERA5 and CERRA meteorology]
+      S[Population, DEM, land cover, roads, TROPOMI]
       B[CBS/PDOK boundary]
     end
     A[Acquisition and checksums]
     H[Temporal and spatial harmonization]
     G[Frozen 500 m EPSG:3035 land grid]
     T[Station-month targets]
-    V[Buffered spatial cross-validation]
-    M[Pollutant-specific model selection]
-    P[Monthly predictions and uncertainty]
+    V[Shared geographic validation folds]
+    C[CHROMAP direct four-model ensemble]
+    M[CAMS plus NL residual candidate]
+    P[January maps and station comparisons]
     Q[QA, manifests, and release gates]
-    N[CF-style NetCDF products]
+    N[Local NetCDF products]
 
     R --> A
     C --> A
@@ -33,9 +35,11 @@ flowchart LR
     A --> H
     H --> G
     H --> T
-    G --> V
     T --> V
+    G --> V
+    V --> C
     V --> M
+    C --> P
     M --> P
     G --> P
     P --> Q
@@ -51,18 +55,24 @@ flowchart TB
     TEST[tests: aggregation and ingestion contracts] --> LIB
     CLI --> RAW[data/raw: immutable downloads]
     RAW --> PROC[data/processed: aligned layers and tables]
-    PROC --> MODEL[spatial CV and residual models]
-    MODEL --> OUT[outputs: NetCDF, QA maps, manifests]
+    PROC --> MODEL[geographic CV, direct ensemble, residual candidate]
+    MODEL --> OUT[outputs: local NetCDF, station predictions, QA]
     DOC[docs and provenance] -. defines gates .-> CLI
 ```
 
 ## Modelling contract
 
-For each pollutant, CAMS is the baseline. Candidate Extra Trees models learn the
-station residual after static and meteorological predictors are aligned. Models
-are selected only when buffered spatial cross-validation improves RMSE; otherwise
-the CAMS baseline is retained. The 2021 pilot selected residual correction for
-NO2 and PM10, and CAMS for O3, PM2.5, and SOMO35.
+The original 2021 Netherlands pilot used CAMS as a baseline and selected an
+Extra Trees residual correction only when spatial validation improved RMSE.
+It selected corrections for NO2 and PM10, and CAMS for O3, PM2.5, and SOMO35.
+
+The January 2021 five-pollutant experiment also trains a CHROMAP-style direct
+ensemble of Ridge, Random Forest, XGBoost, and MLP. The NO2 branch reconstructs
+the documented 22-feature stack; the other pollutants use the pilot-oriented
+feature stack. SO2 has a project-defined preset because the supplied CHROMAP
+archive contains no SO2 preset. All comparisons report held-out predictions
+from the same five geographic folds within each pollutant. Final maps are
+trained using all eligible stations and are not independent validation.
 
 ## Release boundary
 
@@ -77,7 +87,7 @@ sequenceDiagram
     P->>V: Grid-aligned predictors and targets
     V->>V: Spatial CV, map QA, completeness checks
     V-->>P: Reject or investigate failures
-    V->>R: Approved monthly layers
+    V->>R: Approved pilot layers
     R->>R: NetCDF metadata, checksum, provenance
 ```
 
