@@ -20,15 +20,11 @@ indicators:
     - pm10
     - o3
     - so2
-  legacy_2021_pilot:
-    - somo35
 
 aggregation:
   timezone: UTC
   minimum_valid_hours_per_day: 18
   minimum_valid_days_fraction_per_month: 0.75
-  minimum_valid_hours_per_8h_window: 6
-  somo35_threshold_ugm3: 70.0
 
 outputs:
   primary_format: netcdf

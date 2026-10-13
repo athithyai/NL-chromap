@@ -1,0 +1,11 @@
+pollutant,scope,stations,rmse_ug_m3,mae_ug_m3,bias_pred_minus_obs_ug_m3
+no2,netherlands,83,3.5700,2.7259,-0.1437
+o3,netherlands,49,2.3556,1.8080,0.1578
+pm10,netherlands,79,2.1174,1.5772,-0.7370
+pm2p5,netherlands,56,1.6195,1.2063,0.2332
+so2,netherlands,14,1.5677,1.3155,0.4672
+no2,all_training_stations,258,4.5303,3.6185,-0.5436
+o3,all_training_stations,159,2.8921,2.1898,-0.1103
+pm10,all_training_stations,207,2.6188,1.9187,-0.5640
+pm2p5,all_training_stations,152,1.8073,1.2745,-0.0290
+so2,all_training_stations,48,1.5807,1.0583,-0.1243

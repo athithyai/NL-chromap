@@ -13,7 +13,7 @@ model products belong under `outputs/`. Compact aggregate metrics and figures
 may be added to `docs/results/` after checking their attribution and metadata.
 
 Changes to the frozen grid, pollutant definitions, completeness thresholds,
-spatial validation, or model-selection rule are methodology changes. Include a
+spatial validation, or ensemble rule are methodology changes. Include a
 rationale, relevant tests, and an assessment of whether earlier products need
 rebuilding. Contributions to this repository are submitted under Apache-2.0.
 

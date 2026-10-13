@@ -16,17 +16,12 @@ published annual raster.
 
 ```mermaid
 flowchart LR
-  A[258 January station targets] --> D[Identical 5 spatial folds]
+  A[258 January station targets] --> D[5 geographic spatial folds]
   B[22 paper-defined features] --> D
   D --> C[CHROMAP direct models<br/>Ridge + RF + XGBoost + MLP<br/>median]
-  D --> N[NL residual model<br/>CAMS + Extra Trees correction]
   C --> V[Held-out RMSE / MAE / bias / R²]
-  N --> V
-  B --> M[Final 500 m NL maps]
+  B --> M[Final 500 m Netherlands map]
   C --> M
-  N --> M
-  C --> S[Permutation-SHAP]
-  N --> S
 ```
 
 ## NO₂ predictor stack
@@ -44,19 +39,15 @@ flowchart LR
 | Roads | `GEO_RoadNet` | OpenStreetMap/Geofabrik; motorway, trunk, primary, secondary | Approximate centreline length per 500 m cell |
 | Terrain/location | latitude, longitude, altitude, coast distance | Calculated coordinates, Copernicus DEM, Natural Earth coast | Static |
 
-## Models compared
+## Monthly ensemble
 
 1. **Paper-feature CHROMAP:** standardized/imputed inputs; direct Ridge,
    Random Forest, XGBoost, and MLP predictions; each prediction is bounded below
    by the training-target minimum; output is the four-member median.
-2. **NL original approach:** CAMS plus an Extra Trees model trained on monitoring
-   residuals, using the project's original NL-oriented predictor stack.
-3. **Controlled diagnostic:** CAMS plus Extra Trees residual correction using the
-   exact same 22 paper features. This separates the model-form effect from the
-   feature-stack effect.
-
-All validation predictions use the same station rows and the same five
-geographic K-means folds. Preprocessing and fitting occur inside each fold.
+The five geographic K-means folds contain 258 stations in total, of which 83
+are Dutch. Preprocessing and fitting occur inside each fold. The final map is
+refitted with every eligible station. CAMS is a chemical predictor and is
+shown separately as a baseline; it is not a second correction model.
 
 ## Known differences from the publication
 
@@ -78,8 +69,7 @@ python scripts/download_cerra_month.py --year 2021 --month 1
 python scripts/build_tropomi_no2_month.py --year 2021 --month 1 --workers 4
 python scripts/build_chromap_static_buffer.py
 python scripts/build_paper_no2_features_2021_01.py
-python scripts/compare_paper_chromap_no2_2021_01.py
-python scripts/explain_paper_no2_2021_01_shap.py
+python scripts/train_monthly_chromap.py --pollutant no2 --feature-set paper-no2 --month 2021-01 --stations data/processed/model/paper_no2_2021_01/paper_no2_station_features_2021_01.csv.gz --grid-features data/processed/model/paper_no2_2021_01/paper_no2_grid_features_2021_01.nc --grid-mask data/processed/grid/chromap_nl_500m_grid.nc --output-dir outputs/chromap_no2_2021_01
 ```
 
 Generated-data manifests include SHA-256 hashes. Raw and generated bulk data are

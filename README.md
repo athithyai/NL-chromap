@@ -1,59 +1,69 @@
-# NL CHROMAP
+# NL CHROMAP: monthly adaptation
 
-NL CHROMAP is an independent research adaptation of the [CHROMAP v1.0
-methodology](ACKNOWLEDGEMENTS.md) for 500 m monthly air-quality mapping in the
-European Netherlands. It contains acquisition and processing scripts, a
-Netherlands residual model, a monthly CHROMAP-style comparison, validation
-code, and compact results. It is not an official CHROMAP product.
+This repository is an independent research adaptation of [CHROMAP v1.0](ACKNOWLEDGEMENTS.md)
+for 500 m monthly maps over the European Netherlands. **`main` contains only
+the direct CHROMAP-style four-model median ensemble.** A distinct Netherlands
+CAMS-plus-residual experiment is preserved on the
+[`nl-residual-comparison` branch](https://github.com/athithyai/NL-chromap/tree/nl-residual-comparison);
+its results are not mixed with those below. This is not an official product of
+the CHROMAP authors.
 
-## What is implemented
+## January 2021 results
 
-| Workstream | Available result | Status |
-|---|---|---|
-| Netherlands pilot | Twelve 2021 monthly maps for NO₂, O₃, PM₁₀, PM₂.₅, and SOMO35 | Local pilot products; SOMO35 belongs to this earlier pilot |
-| Paper-feature CHROMAP adaptation | January 2021 NO₂ with the documented 22 predictors and four-model median ensemble | Reconstructed predictors and newly trained models; no author-supplied weights |
-| Five-pollutant comparison | January 2021 NO₂, O₃, PM₁₀, PM₂.₅, and SO₂ | Local maps and five-fold geographic validation; SO₂ uses a project-defined model preset because the supplied CHROMAP archive has none |
-| Historical production | Monthly maps from 2013 onward | Planned; do not treat the January or 2021 pilots as a complete historical product |
+The table pairs **Dutch ground measurements** with final January 2021 CHROMAP
+adaptation maps. Colours within each pollutant use the same concentration
+scale. The score is **Dutch-station held-out RMSE**, not the error from reading
+values off the final map. Models were trained with eligible Dutch and nearby
+EEA stations; the count here refers only to Dutch stations.
 
-The comparison uses validated RIVM measurements and verified EEA stations in
-nearby countries. The maps cover Netherlands land cells only. The fixed
-EPSG:3035 grid has 500 m cells and uses the documented 2026 PDOK land boundary
-as a static mask, including for the 2021 experiment.
+| Pollutant | Ground measurement | CHROMAP map | CHROMAP held-out RMSE (µg/m³) | Dutch stations |
+| --- | --- | --- | ---: | ---: |
+| NO₂ | ![Dutch January NO₂ ground measurements](docs/results/no2_2021_01_dutch_measurements.png) | ![January NO₂ CHROMAP adaptation map](docs/results/no2_2021_01_chromap_map.png) | 3.570 | 83 |
+| O₃ | ![Dutch January O₃ ground measurements](docs/results/o3_2021_01_dutch_measurements.png) | ![January O₃ CHROMAP adaptation map](docs/results/o3_2021_01_chromap_map.png) | 2.356 | 49 |
+| PM₁₀ | ![Dutch January PM₁₀ ground measurements](docs/results/pm10_2021_01_dutch_measurements.png) | ![January PM₁₀ CHROMAP adaptation map](docs/results/pm10_2021_01_chromap_map.png) | 2.117 | 79 |
+| PM₂.₅ | ![Dutch January PM₂.₅ ground measurements](docs/results/pm2p5_2021_01_dutch_measurements.png) | ![January PM₂.₅ CHROMAP adaptation map](docs/results/pm2p5_2021_01_chromap_map.png) | 1.620 | 56 |
+| SO₂ | ![Dutch January SO₂ ground measurements](docs/results/so2_2021_01_dutch_measurements.png) | ![January SO₂ CHROMAP-style adaptation map](docs/results/so2_2021_01_chromap_map.png) | 1.568 | 14 |
 
-## Methods and evidence
+**Held-out means** five geographic station folds were formed separately for
+each pollutant. To predict one fold, its stations were excluded from model
+fitting; this was repeated until every station had one prediction from a model
+that had not seen its measurement. RMSE is the square root of the mean squared
+difference between those predictions and observations. This tests spatial
+transfer more honestly than comparing training stations with the final map,
+but it is *cross-validation*, not a completely separate external test set.
+The final map uses all eligible stations, so sampled final-map values are not
+independent validation. Fold definitions and performance may change in a new
+country or month. See [validation details](docs/VALIDATION_2021_01.md).
 
-The CHROMAP adaptation predicts concentrations directly with Ridge, Random
-Forest, XGBoost, and MLP models, then takes their median. The Netherlands
-approach uses CAMS as a baseline and learns a station residual where geographic
-validation supports it. Both are evaluated using the same held-out geographic
-folds within each pollutant. Final maps are fitted using all eligible stations;
-station values sampled from those maps are not independent validation.
+## NO₂: CHROMAP versus CAMS
 
-| January 2021 pollutant | Stations | CHROMAP held-out RMSE | NL held-out RMSE |
-|---|---:|---:|---:|
-| NO₂ | 258 | 4.530 | 3.368 |
-| O₃ | 159 | 2.892 | 3.135 |
-| PM₁₀ | 207 | 2.619 | 2.624 |
-| PM₂.₅ | 152 | 1.807 | 1.625 |
-| SO₂ | 48 | 1.581 | 1.629 |
+![January 2021 NO₂ CAMS baseline and CHROMAP adaptation on the same colour scale](docs/results/no2_2021_01_chromap_vs_cams.png)
 
-RMSE is in µg/m³. The NL method for SO₂ selected unmodified CAMS. The NO₂
-CHROMAP result uses the paper-defined feature stack; the other four pollutants
-use the project's CHROMAP-style January comparison. See the
-[NO₂ method audit](docs/PAPER_FAITHFUL_NO2_2021_01.md),
-[NO₂ results](docs/results/NO2_2021_01_PAPER_REPRODUCTION.md), and
-[other-pollutant results](docs/results/OTHER_POLLUTANTS_2021_01.md) for
-definitions and limitations.
+Both panels use the same 0–40 µg/m³ scale and 500 m output grid. CAMS is the
+regional chemical-transport reanalysis input; the CHROMAP adaptation uses it
+among 22 predictors and adds spatial detail through the trained ensemble.
+On Dutch held-out stations, RMSE was **4.120 µg/m³ for CAMS** and **3.570 µg/m³
+for CHROMAP** in this January experiment. A visually finer map alone does not
+prove better accuracy; the held-out comparison is the relevant check.
 
-![January 2021 monitoring-station coverage](docs/results/ground_stations_all_training_2021_01.png)
+## What was adapted
 
-The [Netherlands close-up](docs/results/ground_stations_netherlands_2021_01.png)
-shows the station distribution for each pollutant. The figures depict station
-locations, not concentration values.
+The supplied CHROMAP v1.0 archive provided feature definitions, model code,
+pollutant hyperparameters, preprocessing, lower-bound and median-ensemble
+procedure—not fitted weights or the original processed training arrays. We
+rebuilt predictors and trained new Ridge, Random Forest, XGBoost and MLP
+models. The paper describes annual European mapping; this repository trains
+independent January 2021 monthly models over a Netherlands-centred domain.
+The NO₂ branch uses the documented 22-feature stack. O₃, PM₁₀ and PM₂.₅ use
+a project-prepared monthly predictor stack and the supplied pollutant presets.
+**SO₂ uses a project-defined preset**, because the supplied archive contained
+no SO₂ preset. These four non-NO₂ results are CHROMAP-style adaptations, not
+exact reproductions of the paper's feature tables. See the
+[method audit](docs/PAPER_FAITHFUL_NO2_2021_01.md).
 
-## Start here
+## Run or adapt
 
-Python 3.11 or newer is required. From the repository root:
+Install Python 3.11+ and the pipeline dependencies:
 
 ```powershell
 python -m venv .venv
@@ -63,46 +73,22 @@ $env:PYTHONPATH = "src"
 python -m unittest discover -s tests -v
 ```
 
-On Linux or macOS, activate the environment with `source .venv/bin/activate`
-and run `PYTHONPATH=src python -m unittest discover -s tests -v`.
+Raw observations, downloaded predictors and generated NetCDFs are not in Git.
+Follow the [runbook](docs/RUNBOOK.md), [data-source register](DATA_SOURCES.md)
+and [external adaptation guide](docs/EXTERNAL_ADAPTATION.md). The generic
+`scripts/train_monthly_chromap.py` runner takes a station feature table and an
+aligned gridded feature NetCDF; it trains the direct ensemble, saves held-out
+station predictions and writes the final NetCDF map. Acquisition and feature
+construction remain region-specific. Germany therefore requires German data,
+a German grid and predictor preparation, retraining and fresh validation.
 
-The unit tests need no downloaded data. Reproducing a map does: accept each
-provider's terms, configure Copernicus CDS access, acquire the source layers,
-and build the intermediate files in the expected `data/` layout. Follow the
-[runbook](docs/RUNBOOK.md), [source register](DATA_SOURCES.md), and
-[external adaptation guide](docs/EXTERNAL_ADAPTATION.md). Several pilot scripts
-still use repository-relative paths and specific 2021 filenames; adapting a
-new year or region requires editing those paths and rerunning validation.
+This is a January 2021 research result, **not** a complete 2013-onward monthly
+product. The public figures use a 2026 PDOK boundary as the outline/land mask
+for the 2021 experiment; this time mismatch is documented rather than hidden.
 
-## Repository layout
+## Licence and credit
 
-```text
-config/          documented product settings; not yet consumed by every script
-src/chromap_nl/  reusable observation and aggregation logic
-scripts/         acquisition, predictors, modelling, validation, export, plots
-tests/           core unit tests
-docs/            methods, architecture, results, adaptation guide
-data/            local raw and processed data; excluded from Git
-outputs/         local model products; excluded from Git
-output/          local review and station exports; excluded from Git
-```
-
-The provided `CHROMAP_v1.0` archive was used as a reference for feature names,
-model families, pollutant presets, preprocessing, lower-bound handling, and
-median ensembling. It did not include the original processed predictor arrays
-or fitted weights, and is not redistributed here. The code in this repository
-rebuilds predictors from the cited public products and trains new models.
-
-## Data, licence, and attribution
-
-The repository contains code, documentation, and compact figures and metrics.
-Downloaded archives, station-level source data, credentials, model objects,
-and generated NetCDF products stay local. Data providers set their own licences
-and access conditions; the repository's software licence does not override
-them. See [data handling](data/README.md) and the [source register](DATA_SOURCES.md).
-
-Repository code and original documentation are licensed under
-[Apache-2.0](LICENSE). CHROMAP's original methodology and authors are credited
-in [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md); the upstream archive and source
-datasets retain their own terms. Changes to this adaptation are recorded in
-[CHANGELOG.md](CHANGELOG.md).
+Original repository code and documentation are [Apache-2.0 licensed](LICENSE).
+Source datasets and the original CHROMAP archive retain their own terms and
+are not redistributed here. See [acknowledgements](ACKNOWLEDGEMENTS.md),
+[source register](DATA_SOURCES.md), and [change log](CHANGELOG.md).

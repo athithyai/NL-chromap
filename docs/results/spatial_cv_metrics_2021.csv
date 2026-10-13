@@ -1,7 +1,0 @@
-indicator,cams_rmse,extra_trees_rmse,selected_model
-NO2,7.27,4.73,extra_trees_residual
-O3,4.13,,cams
-PM10,3.37,3.11,extra_trees_residual
-PM2.5,1.62,,cams
-SOMO35,59.69,,cams
-

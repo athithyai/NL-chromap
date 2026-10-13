@@ -8,9 +8,9 @@ combining chemical-transport modelling, ground observations, satellite data,
 meteorology, and geographic predictors with an ensemble of machine- and
 deep-learning models to generate 500 m air-quality surfaces over Europe.
 
-This repository adapts that work to monthly production, adds a Netherlands
-residual-downscaling comparison, and rebuilds the required public predictor
-layers. It is not an official release by the CHROMAP authors, Ineris, or INSA
+This repository adapts that work to a monthly Netherlands research setting
+and rebuilds the required public predictor layers. A separate alternative
+method is held on another branch. It is not an official release by the CHROMAP authors, Ineris, or INSA
 Rouen, and it should not be interpreted as their endorsement of these results.
 The methodological reference was a supplied `CHROMAP_v1.0` archive and the
 accompanying publication. The archive is not redistributed here. The January

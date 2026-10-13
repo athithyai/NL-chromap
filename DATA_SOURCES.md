@@ -1,8 +1,8 @@
 # Authoritative data-source register
 
-This register documents sources used by the research pilots and preferred
-sources for the planned monthly product. The 2021 pilot and January 2021
-five-pollutant comparison are implemented; a complete 2013–2025 series is not.
+This register documents sources used by the January 2021 direct-ensemble
+experiment and preferred sources for a planned monthly product. A complete
+2013–2025 five-pollutant series is not implemented on `main`.
 Dataset versions, request payloads, retrieval times, file hashes, and licence
 identifiers must also be recorded in acquisition manifests.
 
