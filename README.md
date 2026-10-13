@@ -10,19 +10,19 @@ the CHROMAP authors.
 
 ## January 2021 results
 
-The table pairs **Dutch ground measurements** with final January 2021 CHROMAP
-adaptation maps. Colours within each pollutant use the same concentration
-scale. The score is **Dutch-station held-out RMSE**, not the error from reading
-values off the final map. Models were trained with eligible Dutch and nearby
-EEA stations; the count here refers only to Dutch stations.
+The figures show **Dutch ground measurements** for January 2021. Click a
+pollutant name to view its final 500 m CHROMAP map. The score is **Dutch-station
+held-out RMSE**, not the error from reading values off the final map. Models
+were trained with eligible Dutch and nearby EEA stations; each figure labels
+its Dutch station count.
 
-| Pollutant | Ground measurement | CHROMAP map | CHROMAP held-out RMSE (µg/m³) | Dutch stations |
-| --- | --- | --- | ---: | ---: |
-| NO₂ | ![Dutch January NO₂ ground measurements](docs/results/no2_2021_01_dutch_measurements.png) | ![January NO₂ CHROMAP adaptation map](docs/results/no2_2021_01_chromap_map.png) | 3.570 | 83 |
-| O₃ | ![Dutch January O₃ ground measurements](docs/results/o3_2021_01_dutch_measurements.png) | ![January O₃ CHROMAP adaptation map](docs/results/o3_2021_01_chromap_map.png) | 2.356 | 49 |
-| PM₁₀ | ![Dutch January PM₁₀ ground measurements](docs/results/pm10_2021_01_dutch_measurements.png) | ![January PM₁₀ CHROMAP adaptation map](docs/results/pm10_2021_01_chromap_map.png) | 2.117 | 79 |
-| PM₂.₅ | ![Dutch January PM₂.₅ ground measurements](docs/results/pm2p5_2021_01_dutch_measurements.png) | ![January PM₂.₅ CHROMAP adaptation map](docs/results/pm2p5_2021_01_chromap_map.png) | 1.620 | 56 |
-| SO₂ | ![Dutch January SO₂ ground measurements](docs/results/so2_2021_01_dutch_measurements.png) | ![January SO₂ CHROMAP-style adaptation map](docs/results/so2_2021_01_chromap_map.png) | 1.568 | 14 |
+| Pollutant | Ground measurement | CHROMAP held-out RMSE (µg/m³) |
+| --- | --- | ---: |
+| [NO₂](docs/results/no2_2021_01_chromap_map.png) | ![Dutch January NO₂ ground measurements](docs/results/no2_2021_01_dutch_measurements.png) | 3.570 |
+| [O₃](docs/results/o3_2021_01_chromap_map.png) | ![Dutch January O₃ ground measurements](docs/results/o3_2021_01_dutch_measurements.png) | 2.356 |
+| [PM₁₀](docs/results/pm10_2021_01_chromap_map.png) | ![Dutch January PM₁₀ ground measurements](docs/results/pm10_2021_01_dutch_measurements.png) | 2.117 |
+| [PM₂.₅](docs/results/pm2p5_2021_01_chromap_map.png) | ![Dutch January PM₂.₅ ground measurements](docs/results/pm2p5_2021_01_dutch_measurements.png) | 1.620 |
+| [SO₂](docs/results/so2_2021_01_chromap_map.png) | ![Dutch January SO₂ ground measurements](docs/results/so2_2021_01_dutch_measurements.png) | 1.568 |
 
 **Held-out means** five geographic station folds were formed separately for
 each pollutant. To predict one fold, its stations were excluded from model
