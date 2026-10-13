@@ -10,30 +10,35 @@ the CHROMAP authors.
 
 ## January 2021 results
 
-The figures show **Dutch ground measurements** for January 2021. Click a
-pollutant name to view its final 500 m CHROMAP map. The score is **Dutch-station
-held-out RMSE**, not the error from reading values off the final map. Models
-were trained with eligible Dutch and nearby EEA stations; each figure labels
-its Dutch station count.
+The following is a **single-station example** for Hoogvliet–Leemkuil
+(`NL01485`) in January 2021. All entries are monthly concentrations in µg/m³,
+**not RMSE**. The map column samples the current final CHROMAP map at the
+station's 500 m cell; click a pollutant name to view that map.
 
-| Pollutant | Ground measurement | CHROMAP held-out RMSE (µg/m³) |
-| --- | --- | ---: |
-| [NO₂](docs/results/no2_2021_01_chromap_map.png) | ![Dutch January NO₂ ground measurements](docs/results/no2_2021_01_dutch_measurements.png) | 3.570 |
-| [O₃](docs/results/o3_2021_01_chromap_map.png) | ![Dutch January O₃ ground measurements](docs/results/o3_2021_01_dutch_measurements.png) | 2.356 |
-| [PM₁₀](docs/results/pm10_2021_01_chromap_map.png) | ![Dutch January PM₁₀ ground measurements](docs/results/pm10_2021_01_dutch_measurements.png) | 2.117 |
-| [PM₂.₅](docs/results/pm2p5_2021_01_chromap_map.png) | ![Dutch January PM₂.₅ ground measurements](docs/results/pm2p5_2021_01_dutch_measurements.png) | 1.620 |
-| [SO₂](docs/results/so2_2021_01_chromap_map.png) | ![Dutch January SO₂ ground measurements](docs/results/so2_2021_01_dutch_measurements.png) | 1.568 |
+| Pollutant | Ground measurement | CHROMAP map | CHROMAP held-out |
+| --- | ---: | ---: | ---: |
+| [NO₂](docs/results/no2_2021_01_chromap_map.png) | 23.44 | 27.05 | 24.64 |
+| [O₃](docs/results/o3_2021_01_chromap_map.png) | 30.02 | 29.94 | 31.16 |
+| [PM₁₀](docs/results/pm10_2021_01_chromap_map.png) | 14.73 | 15.39 | 14.42 |
+| [PM₂.₅](docs/results/pm2p5_2021_01_chromap_map.png) | 8.82 | 9.44 | 10.11 |
+| [SO₂](docs/results/so2_2021_01_chromap_map.png) | 1.65 | 2.15 | 3.76 |
 
-**Held-out means** five geographic station folds were formed separately for
-each pollutant. To predict one fold, its stations were excluded from model
-fitting; this was repeated until every station had one prediction from a model
-that had not seen its measurement. RMSE is the square root of the mean squared
-difference between those predictions and observations. This tests spatial
-transfer more honestly than comparing training stations with the final map,
-but it is *cross-validation*, not a completely separate external test set.
-The final map uses all eligible stations, so sampled final-map values are not
-independent validation. Fold definitions and performance may change in a new
-country or month. See [validation details](docs/VALIDATION_2021_01.md).
+`CHROMAP held-out` is the station's out-of-fold prediction: its geographic
+fold was excluded when that prediction was made. The final map was fitted
+using all eligible stations, including this one, so its sampled value is not
+an independent accuracy test. Aggregate spatial-validation scores and the
+fold definition are in [validation details](docs/VALIDATION_2021_01.md).
+The current map samples for O₃, PM₁₀, PM₂.₅ and SO₂ differ slightly from
+earlier comparison exports because final-map preprocessing was corrected to
+fit on training stations before transforming grid cells; held-out predictions
+were unchanged. This correction is recorded in the [change log](CHANGELOG.md).
+
+Dutch-only ground-measurement figures for each pollutant are available for
+[NO₂](docs/results/no2_2021_01_dutch_measurements.png),
+[O₃](docs/results/o3_2021_01_dutch_measurements.png),
+[PM₁₀](docs/results/pm10_2021_01_dutch_measurements.png),
+[PM₂.₅](docs/results/pm2p5_2021_01_dutch_measurements.png), and
+[SO₂](docs/results/so2_2021_01_dutch_measurements.png).
 
 ## NO₂: CHROMAP versus CAMS
 
